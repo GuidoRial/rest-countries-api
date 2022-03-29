@@ -20,7 +20,6 @@ function Main() {
                 console.error(error);
             }
         };
-
         fetchAmerica();
     }, []);
 
@@ -36,15 +35,25 @@ function Main() {
                 console.error(error);
             }
         };
-
-        fetchCountriesByRegion(region);
+        if (searchCountry.length === 0) {
+            fetchCountriesByRegion(region);
+        }
     }, [region]);
 
-    const filterCountries = (searchCountry) => {
-        countries.filter((country) =>
-            country.name.official.includes(searchCountry)
-        );
-    };
+    useEffect(() => {
+        const searchCountriesByName = async (name) => {
+            try {
+                let result = await fetch(
+                    `https://restcountries.com/v3.1/name/${name}`
+                );
+                let countries = await result.json();
+                setCountries(countries);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        if (searchCountry.length > 0) searchCountriesByName(searchCountry);
+    }, [searchCountry]);
 
     return (
         <>
@@ -67,7 +76,7 @@ function Main() {
                     countries.map((country) => (
                         <div key={uniqid()}>
                             <img src={country.flags.png} alt="country-flag" />
-                            <p>{country.name.official}</p>
+                            <p>{country.name.common}</p>
                             <p>Population: {country.population}</p>
                             <p>Region: {country.region}</p>
                         </div>
